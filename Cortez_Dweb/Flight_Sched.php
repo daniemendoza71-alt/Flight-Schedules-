@@ -11,16 +11,24 @@ $us_time = new DateTime("now", new DateTimeZone("America/New_York"));
 
 // Sample times
 $dep = new DateTime("2026-01-22 08:30", $phZone);
-$arr = new DateTime("2026-01-22 09:55", $phZone);
+
+$arrTime = (clone $dep)->add(new DateInterval("PT85M"));
+$duration = $dep->diff($arrTime);
 
 // Status
 if ($nowPH < $dep) {
     $status = "Upcoming";
-} elseif ($nowPH > $arr) {
+} elseif ($nowPH > $arrTime) {
     $status = "Arrived";
 } else {
     $status = "In Air";
 }
+
+$tokyoZone   = new DateTimeZone("Asia/Tokyo");
+$chinaZone   = new DateTimeZone("Asia/Shanghai");
+$indiaZone   = new DateTimeZone("Asia/Kolkata");
+$germanyZone = new DateTimeZone("Europe/Berlin");
+$koreaZone   = new DateTimeZone("Asia/Seoul");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,55 +48,33 @@ if ($nowPH < $dep) {
 <h2>Domestic Flights</h2>
 <div class="flight-grid">
 
-    <div class="flight">
-        <img src="images/baguio.jpg" alt="Baguio">
-        <div class="details">
-            <p><b>Flight:</b> DOM101</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> Baguio</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+<?php
+$domestic = [
+    ["DOM101","Manila","Baguio","images/baguio.jpg"],
+    ["DOM102","Manila","Clark","images/clark.png"],
+    ["DOM103","Clark","Palawan","images/palawan.jpg"],
+    ["DOM104","Manila","Batangas","images/batangas.jpg"],
+    ["DOM105","Cebu","Mindanao","images/mindanao.jpg"]
+];
 
-    <div class="flight">
-        <img src="images/clark.png" alt="Clark">
-        <div class="details">
-            <p><b>Flight:</b> DOM102</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> Clark</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+foreach ($domestic as $d):
+?>
+<div class="flight">
+    <img src="<?= $d[3] ?>" alt="">
+    <div class="details">
+        <p><b>Flight:</b> <?= $d[0] ?></p>
+        <p><b>From:</b> <?= $d[1] ?></p>
+        <p><b>To:</b> <?= $d[2] ?></p>
 
-    <div class="flight">
-        <img src="images/palawan.jpg" alt="Palawan">
-        <div class="details">
-            <p><b>Flight:</b> DOM103</p>
-            <p><b>From:</b> Clark</p>
-            <p><b>To:</b> Palawan</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+      
+        <p><b>Departure:</b> <?= $dep->format("M d, Y h:i A") ?> (Asia/Manila)</p>
+        <p><b>Arrival:</b> <?= $arrTime->format("M d, Y h:i A") ?> (Asia/Manila)</p>
+        <p><b>Duration:</b> <?= $duration->h ?>h <?= $duration->i ?>m</p>
 
-    <div class="flight">
-        <img src="images/batangas.jpg" alt="Batangas">
-        <div class="details">
-            <p><b>Flight:</b> DOM104</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> Batangas</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
+        <p><b>Status:</b> <?= $status ?></p>
     </div>
-
-    <div class="flight">
-        <img src="images/mindanao.jpg" alt="Mindanao">
-        <div class="details">
-            <p><b>Flight:</b> DOM105</p>
-            <p><b>From:</b> Cebu</p>
-            <p><b>To:</b> Mindanao</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+</div>
+<?php endforeach; ?>
 
 </div>
 
@@ -96,55 +82,36 @@ if ($nowPH < $dep) {
 <h2>International Flights</h2>
 <div class="flight-grid international">
 
-    <div class="flight">
-        <img src="images/osaka.jpg" alt="Japan">
-        <div class="details">
-            <p><b>Flight:</b> INT201</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> Japan</p>
-            <p><b>Status:</b> Upcoming</p>
-        </div>
-    </div>
+<?php
+$international = [
+    ["INT201","Manila","Japan","images/osaka.jpg",$tokyoZone],
+    ["INT202","Manila","China","images/china.webp",$chinaZone],
+    ["INT203","Manila","India","images/india.jpg",$indiaZone],
+    ["INT204","Manila","Germany","images/germany.webp",$germanyZone],
+    ["INT205","Clark","South Korea","images/korea.jpg",$koreaZone]
+];
 
-    <div class="flight">
-        <img src="images/china.webp" alt="China">
-        <div class="details">
-            <p><b>Flight:</b> INT202</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> China</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+foreach ($international as $i):
+    $arrIntl = clone $arrTime;
+    $arrIntl->setTimezone($i[4]);
+?>
+<div class="flight">
+    <img src="<?= $i[3] ?>" alt="">
+    <div class="details">
+        <p><b>Flight:</b> <?= $i[0] ?></p>
+        <p><b>From:</b> <?= $i[1] ?></p>
+        <p><b>To:</b> <?= $i[2] ?></p>
 
-    <div class="flight">
-        <img src="images/india.jpg" alt="India">
-        <div class="details">
-            <p><b>Flight:</b> INT203</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> India</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+       
+        <p><b>Departure:</b> <?= $dep->format("M d, Y h:i A") ?> (Asia/Manila)</p>
+        <p><b>Arrival:</b> <?= $arrIntl->format("M d, Y h:i A") ?></p>
+        <p><b>Duration:</b> <?= $duration->h ?>h <?= $duration->i ?>m</p>
+        <p><b>Timezone:</b> <?= $i[4]->getName() ?></p>
 
-    <div class="flight">
-        <img src="images/germany.webp" alt="Germany">
-        <div class="details">
-            <p><b>Flight:</b> INT204</p>
-            <p><b>From:</b> Manila</p>
-            <p><b>To:</b> Germany</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
+        <p><b>Status:</b> <?= $status ?></p>
     </div>
-
-    <div class="flight">
-        <img src="images/korea.jpg" alt="South Korea">
-        <div class="details">
-            <p><b>Flight:</b> INT205</p>
-            <p><b>From:</b> Clark</p>
-            <p><b>To:</b> South Korea</p>
-            <p><b>Status:</b> <?= $status ?></p>
-        </div>
-    </div>
+</div>
+<?php endforeach; ?>
 
 </div>
 
